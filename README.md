@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# QIX
 
-## Getting Started
+A modern web implementation of the classic 1981 arcade game Qix.
 
-First, run the development server:
+## Gameplay
+
+Claim territory by drawing lines across the playing field. Avoid the Qix (the abstract geometric enemy bouncing around) and the Sparx (enemies that patrol the border). Claim 75% of the field to advance to the next level.
+
+**Controls:**
+- **Arrow keys / WASD** — Move
+- **Hold Shift** — Slow draw mode (2× points)
+- **Space / Enter** — Start / Pause
+- **Escape** — Pause
+
+## Features
+
+- Classic Qix mechanics with polygon-based territory claiming
+- Multiple Qixes with unique colors and movement patterns at higher levels
+- Sparx that patrol the border
+- Fuse mechanic when standing still while drawing
+- Slow draw mode for bonus points
+- Local highscore leaderboard
+- Responsive canvas that adapts to window size
+- Touch support for mobile play
+
+## Tech Stack
+
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- HTML5 Canvas
+
+## Run Locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## License & Acknowledgements
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+MIT License (c) Claude Opus 4.5
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Thanks to David Pomerenke for his helpful feedback during development.

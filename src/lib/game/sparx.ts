@@ -14,7 +14,7 @@ export function createSparx(config: GameConfig, level: number, count: number, pl
     return {
       pos: { ...spawn.pos },
       clockwise: spawn.clockwise,  // Rotational direction, not world direction
-      speed: config.playerSpeed * 1.2,
+      speed: config.playerSpeed * 1.2,  // Already scaled via config.playerSpeed
       isSuper: level >= 5 && i === 0,
     }
   })

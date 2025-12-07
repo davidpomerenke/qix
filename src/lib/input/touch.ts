@@ -6,18 +6,18 @@ export interface TouchState {
   start: boolean
 }
 
-const SWIPE_THRESHOLD = 10
-const DIRECTION_THRESHOLD = 0.5
+const SWIPE_THRESHOLD = 20
 
 export function createTouchHandler(onUpdate: (state: TouchState) => void) {
   let touchStart: Point | null = null
-  let currentDirection: Point | null = null
+  let lockedDirection: Point | null = null  // Persists after touch ends
   let isTwoFingerTouch = false
   let lastTap = 0
   
   const handleTouchStart = (e: TouchEvent) => {
     if (e.touches.length >= 2) {
       isTwoFingerTouch = true
+      onUpdate({ direction: lockedDirection, slowDraw: true, start: false })
     } else {
       isTwoFingerTouch = false
       touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY }
@@ -25,7 +25,7 @@ export function createTouchHandler(onUpdate: (state: TouchState) => void) {
       // Double tap to start
       const now = Date.now()
       if (now - lastTap < 300) {
-        onUpdate({ direction: null, slowDraw: false, start: true })
+        onUpdate({ direction: lockedDirection, slowDraw: false, start: true })
       }
       lastTap = now
     }
@@ -41,23 +41,18 @@ export function createTouchHandler(onUpdate: (state: TouchState) => void) {
     const dist = Math.sqrt(dx * dx + dy * dy)
     
     if (dist > SWIPE_THRESHOLD) {
-      const nx = dx / dist
-      const ny = dy / dist
-      
-      // Snap to cardinal direction
-      if (Math.abs(nx) > Math.abs(ny) + DIRECTION_THRESHOLD) {
-        currentDirection = { x: nx > 0 ? 1 : -1, y: 0 }
-      } else if (Math.abs(ny) > Math.abs(nx) + DIRECTION_THRESHOLD) {
-        currentDirection = { x: 0, y: ny > 0 ? 1 : -1 }
+      // Snap to cardinal direction (no diagonals)
+      if (Math.abs(dx) > Math.abs(dy)) {
+        lockedDirection = { x: dx > 0 ? 1 : -1, y: 0 }
       } else {
-        currentDirection = { x: nx > 0 ? 1 : -1, y: ny > 0 ? 1 : -1 }
+        lockedDirection = { x: 0, y: dy > 0 ? 1 : -1 }
       }
       
-      // Update start point for continuous swipe
+      // Reset touch start for next swipe detection
       touchStart = { x: touch.clientX, y: touch.clientY }
       
       onUpdate({
-        direction: currentDirection,
+        direction: lockedDirection,
         slowDraw: isTwoFingerTouch || e.touches.length >= 2,
         start: false,
       })
@@ -67,9 +62,9 @@ export function createTouchHandler(onUpdate: (state: TouchState) => void) {
   const handleTouchEnd = (e: TouchEvent) => {
     if (e.touches.length === 0) {
       touchStart = null
-      currentDirection = null
       isTwoFingerTouch = false
-      onUpdate({ direction: null, slowDraw: false, start: false })
+      // Keep lockedDirection! Player continues moving
+      onUpdate({ direction: lockedDirection, slowDraw: false, start: false })
     } else if (e.touches.length === 1) {
       isTwoFingerTouch = false
       touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY }
@@ -89,4 +84,3 @@ export function createTouchHandler(onUpdate: (state: TouchState) => void) {
     },
   }
 }
-

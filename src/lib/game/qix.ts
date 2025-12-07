@@ -2,7 +2,7 @@ import { Qix, QixLine, Point, GameConfig, Segment } from './types'
 import { isOnSegment, pointInPolygon } from './territory'
 
 const NUM_LINES = 12
-const BASE_LINE_LENGTH = 45
+const BASE_LINE_LENGTH = 45  // Will be scaled by config
 
 // Color schemes for different Qixes
 const QIX_COLORS = [
@@ -15,9 +15,10 @@ const QIX_COLORS = [
 export function createQix(config: GameConfig, centerOffset: Point = { x: 0, y: 0 }, index = 0): Qix {
   const centerX = config.width / 2 + centerOffset.x
   const centerY = config.height / 2 + centerOffset.y
+  const scale = config.scale || 1
   
   const initialAngle = Math.random() * Math.PI * 2
-  const halfLen = BASE_LINE_LENGTH / 2
+  const halfLen = (BASE_LINE_LENGTH * scale) / 2
   const colors = QIX_COLORS[index % QIX_COLORS.length]
   
   // Each Qix gets unique movement pattern multipliers
@@ -50,6 +51,7 @@ export function updateQix(
   dt: number
 ): Qix {
   const time = (qix.time || 0) + dt * 0.06
+  const scale = config.scale || 1
   
   // Use Qix-specific multipliers for unique patterns
   const rm = qix.rotationMult
@@ -57,9 +59,9 @@ export function updateQix(
   const lm = qix.lengthMult
   
   const rotationTrend = Math.sin(time * 2.1 * rm) * 0.15 + Math.sin(time * 0.7 * rm) * 0.08
-  const translationX = (Math.sin(time * 1.3 * tm) * 1.2 + Math.sin(time * 0.4 * tm) * 0.8) * tm
-  const translationY = (Math.cos(time * 1.1 * tm) * 1.2 + Math.cos(time * 0.5 * tm) * 0.8) * tm
-  const lengthChange = (Math.sin(time * 0.9 * lm) * 5 + Math.sin(time * 2.5 * lm) * 3) * lm
+  const translationX = (Math.sin(time * 1.3 * tm) * 1.2 + Math.sin(time * 0.4 * tm) * 0.8) * tm * scale
+  const translationY = (Math.cos(time * 1.1 * tm) * 1.2 + Math.cos(time * 0.5 * tm) * 0.8) * tm * scale
+  const lengthChange = (Math.sin(time * 0.9 * lm) * 5 + Math.sin(time * 2.5 * lm) * 3) * lm * scale
   
   const newestLine = qix.lines[0]
   if (!newestLine) return createQix(config, { x: 0, y: 0 }, 0)
@@ -70,7 +72,7 @@ export function updateQix(
   const currentLength = Math.hypot(newestLine.end.x - newestLine.start.x, newestLine.end.y - newestLine.start.y)
   
   const newAngle = currentAngle + rotationTrend
-  const newLength = Math.max(20, Math.min(70, currentLength + lengthChange * 0.1))
+  const newLength = Math.max(20 * scale, Math.min(70 * scale, currentLength + lengthChange * 0.1))
   let newCenterX = centerX + translationX * qix.baseSpeed
   let newCenterY = centerY + translationY * qix.baseSpeed
   
@@ -80,11 +82,11 @@ export function updateQix(
     newCenterY = centerY
   }
   
-  const margin = config.margin + newLength / 2 + 10
+  const margin = config.margin + newLength / 2 + 10 * scale
   newCenterX = Math.max(margin, Math.min(config.width - margin, newCenterX))
   newCenterY = Math.max(margin, Math.min(config.height - margin, newCenterY))
   
-  if (drawnSegments.length > 0 && isOnSegment({ x: newCenterX, y: newCenterY }, drawnSegments, 15)) {
+  if (drawnSegments.length > 0 && isOnSegment({ x: newCenterX, y: newCenterY }, drawnSegments, 15 * scale)) {
     newCenterX = centerX
     newCenterY = centerY
   }

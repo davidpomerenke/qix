@@ -5,6 +5,8 @@ import { updateFuse } from './fuse'
 import { checkCollisions } from './collision'
 import { pathToSegments, isOnSegment, polygonToSegments, updateInnerBorder, calculatePolygonArea, pointInPolygon } from './territory'
 
+const REFERENCE_WIDTH = 800
+
 export const DEFAULT_CONFIG: GameConfig = {
   width: 800,
   height: 600,
@@ -16,6 +18,21 @@ export const DEFAULT_CONFIG: GameConfig = {
   qixBaseSpeed: 2.0,
   targetPercentage: 75,
   livesPerGame: 3,
+  scale: 1,
+}
+
+export function createScaledConfig(width: number, height: number): GameConfig {
+  const scale = width / REFERENCE_WIDTH
+  return {
+    ...DEFAULT_CONFIG,
+    width,
+    height,
+    margin: Math.round(20 * scale),
+    playerSpeed: 4 * scale,
+    fuseSpeed: 2 * scale,
+    qixBaseSpeed: 2.0 * scale,
+    scale,
+  }
 }
 
 function getLevelConfig(level: number): { sparxCount: number, qixCount: number } {

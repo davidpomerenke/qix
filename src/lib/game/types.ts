@@ -97,6 +97,7 @@ export interface GameConfig {
   qixBaseSpeed: number
   targetPercentage: number
   livesPerGame: number
+  scale: number  // Scale factor based on canvas size vs reference (800px)
 }
 
 export interface TestCommand {

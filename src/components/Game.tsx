@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { GameState, GameConfig, InputState, TestCommand } from '@/lib/game/types'
-import { createInitialState, updateGame, DEFAULT_CONFIG, nextLevel, queueTestCommands } from '@/lib/game/engine'
+import { createInitialState, updateGame, DEFAULT_CONFIG, nextLevel, queueTestCommands, createScaledConfig } from '@/lib/game/engine'
 import { createKeyboardHandler } from '@/lib/input/keyboard'
 import { createTouchHandler } from '@/lib/input/touch'
 import { renderGame } from './renderer'
@@ -80,7 +80,7 @@ export function Game() {
         width = height * aspect
       }
       
-      const newConfig = { ...DEFAULT_CONFIG, width: Math.floor(width), height: Math.floor(height) }
+      const newConfig = createScaledConfig(Math.floor(width), Math.floor(height))
       setConfig(newConfig)
       setGameState(s => s.phase === 'start' ? createInitialState(newConfig) : s)
     }
