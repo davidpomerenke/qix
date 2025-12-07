@@ -127,13 +127,33 @@ export function renderGame(ctx: CanvasRenderingContext2D, state: GameState, conf
   
   // Sparx
   for (const sparx of state.sparx) {
-    ctx.shadowColor = COLORS.sparxGlow
-    ctx.shadowBlur = 10 * scale
+    const x = sparx.pos.x
+    const y = sparx.pos.y
+    const baseSize = (sparx.isSuper ? 10 : 7) * scale
+    const pulse = 1 + Math.sin(Date.now() / 100) * 0.15
+    const size = baseSize * pulse
+    
+    // Outer glow ring
+    ctx.shadowColor = sparx.isSuper ? '#ff0000' : COLORS.sparx
+    ctx.shadowBlur = 20 * scale
+    ctx.strokeStyle = sparx.isSuper ? 'rgba(255,0,0,0.4)' : 'rgba(255,68,68,0.4)'
+    ctx.lineWidth = 3 * scale
+    ctx.beginPath()
+    ctx.arc(x, y, size * 1.5, 0, Math.PI * 2)
+    ctx.stroke()
+    
+    // Inner bright core
     ctx.fillStyle = sparx.isSuper ? '#ff0000' : COLORS.sparx
     ctx.beginPath()
-    ctx.arc(sparx.pos.x, sparx.pos.y, (sparx.isSuper ? 6 : 4) * scale, 0, Math.PI * 2)
+    ctx.arc(x, y, size, 0, Math.PI * 2)
     ctx.fill()
+    
+    // White hot center
     ctx.shadowBlur = 0
+    ctx.fillStyle = sparx.isSuper ? '#ffaaaa' : '#ffcccc'
+    ctx.beginPath()
+    ctx.arc(x, y, size * 0.4, 0, Math.PI * 2)
+    ctx.fill()
   }
   
   // Player
