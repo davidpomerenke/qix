@@ -11,22 +11,37 @@ interface Props {
 
 export function GameOverlay({ state, onStart }: Props) {
   const [highScores, setHighScores] = useState<HighScore[]>([])
+  const [showNameInput, setShowNameInput] = useState(false)
+  const [playerName, setPlayerName] = useState('')
   const [savedScore, setSavedScore] = useState<number | null>(null)
   
   useEffect(() => {
-    if (state.phase === 'gameover' && savedScore !== state.score) {
-      const scores = saveHighScore(state.score, state.level)
-      setHighScores(scores)
-      setSavedScore(state.score)
-    } else if (state.phase === 'start' || state.phase === 'gameover') {
-      setHighScores(getHighScores())
+    if (state.phase === 'start') {
+      getHighScores().then(setHighScores).catch(() => {})
     }
-  }, [state.phase, state.score, state.level, savedScore])
-  
-  // Reset savedScore when starting new game
-  useEffect(() => {
-    if (state.phase === 'playing') setSavedScore(null)
   }, [state.phase])
+  
+  useEffect(() => {
+    if (state.phase === 'gameover' && savedScore !== state.score) {
+      setShowNameInput(true)
+    }
+  }, [state.phase, state.score, savedScore])
+  
+  useEffect(() => {
+    if (state.phase === 'playing') {
+      setSavedScore(null)
+      setShowNameInput(false)
+      setPlayerName('')
+    }
+  }, [state.phase])
+
+  const handleSubmitScore = async () => {
+    if (!playerName.trim()) return
+    const scores = await saveHighScore(playerName.trim(), state.score, state.level)
+    setHighScores(scores)
+    setSavedScore(state.score)
+    setShowNameInput(false)
+  }
 
   if (state.phase === 'playing' || state.phase === 'dying') return null
   
@@ -66,10 +81,32 @@ export function GameOverlay({ state, onStart }: Props) {
             <h2 className="text-3xl font-bold text-red-500 mb-2">Game Over</h2>
             <p className="text-gray-300 mb-1">Level {state.level}</p>
             <p className="text-2xl font-bold text-white mb-4">{state.score.toLocaleString()} pts</p>
-            <button onClick={onStart} className="btn-primary">
-              Play Again
-            </button>
-            {highScores.length > 0 && <HighScoreTable scores={highScores} currentScore={state.score} />}
+            
+            {showNameInput ? (
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="Enter your name"
+                  value={playerName}
+                  onChange={e => setPlayerName(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSubmitScore()}
+                  maxLength={20}
+                  className="bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white text-center w-48 mb-2"
+                  autoFocus
+                />
+                <div>
+                  <button onClick={handleSubmitScore} className="btn-primary text-sm">
+                    Save Score
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button onClick={onStart} className="btn-primary">
+                Play Again
+              </button>
+            )}
+            
+            {highScores.length > 0 && <HighScoreTable scores={highScores} currentScore={savedScore ?? undefined} />}
           </>
         )}
         
@@ -110,6 +147,9 @@ function HighScoreTable({ scores, currentScore }: { scores: HighScore[], current
                   isTop3 ? ['text-yellow-400', 'text-gray-300', 'text-amber-600'][i] : 'text-gray-600'
                 }`}>
                   {i + 1}
+                </span>
+                <span className={`w-20 truncate text-left text-sm ${isCurrentScore ? 'text-cyan-300' : 'text-gray-400'}`}>
+                  {s.name}
                 </span>
                 <span className={`w-16 font-mono text-sm text-right ${isCurrentScore ? 'text-cyan-300' : 'text-white'}`}>
                   {s.score.toLocaleString()}

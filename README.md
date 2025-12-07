@@ -37,6 +37,15 @@ npm install
 npm run dev
 ```
 
+## Environment Variables
+
+For highscore persistence, set up a [Turso](https://turso.tech) database:
+
+```
+TURSO_DB=libsql://your-database.turso.io
+TURSO_TOKEN=your-auth-token
+```
+
 ## License & Acknowledgements
 
 MIT License (c) Claude Opus 4.5
